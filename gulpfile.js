@@ -3,8 +3,13 @@ var gulp = require('gulp'),
 	sass = require('gulp-sass'),
 	plumber = require('gulp-plumber'),
 	imagemin = require('gulp-imagemin'),
-	prefix = require('gulp-autoprefixer');
+	prefix = require('gulp-autoprefixer'),
+	browsersync = require('browser-sync').create();
 
+function errorLog(error) {
+	console.error.bing(error);
+	this.emit('end');
+}
 
 // minifys JaveScript files all ending in .js
 gulp.task('scripts', function() {
@@ -27,13 +32,22 @@ gulp.task('sass', function() {
 		.pipe(plumber())
 		.pipe(sass.sync().on('error', sass.logError))
 		.pipe(prefix('last 2 versions'))
-		.pipe(gulp.dest('assets/compiled/css'));
+		.pipe(gulp.dest('assets/compiled/css'))
+		.pipe(browsersync.reload({stream: true}));
 });
 
 // Watch files and compiles on save
 gulp.task('watch', function() {
+
+	browsersync.init({
+		server: {
+			baseDir: './'
+		}
+	})
+
 	gulp.watch('assets/js/*.js', ['scripts']);
 	gulp.watch('assets/css/**', ['sass']);
+	gulp.watch('**/*.html').on('change', browsersync.reload);
 });
 
 
