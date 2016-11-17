@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
 	uglify = require('gulp-uglify'),
 	sass = require('gulp-sass'),
+	cssbeautify = require('gulp-cssbeautify'),
 	plumber = require('gulp-plumber'),
 	imagemin = require('gulp-imagemin'),
 	prefix = require('gulp-autoprefixer'),
@@ -13,7 +14,7 @@ function errorLog(error) {
 
 // minifys JaveScript files all ending in .js
 gulp.task('scripts', function() {
-	gulp.src('assets/js/*.js')
+	gulp.src('assets/js/functions.js')
 		.pipe(plumber())
 		.pipe(uglify())
 		.pipe(gulp.dest('assets/compiled/js'));
@@ -30,10 +31,22 @@ gulp.task('images', function() {
 gulp.task('sass', function() {
 	gulp.src('assets/css/main.sass')
 		.pipe(plumber())
-		.pipe(sass.sync().on('error', sass.logError))
-		.pipe(prefix('last 2 versions'))
+		.pipe(sass({outputStyle: 'compressed'}))
+		.pipe(prefix(['last 2 versions'], {cascade: true}))
 		.pipe(gulp.dest('assets/compiled/css'))
 		.pipe(browsersync.reload({stream: true}));
+});
+
+
+// pretty css
+gulp.task('css', function() {
+		return gulp.src('assets/compiled/css/*.css')
+				.pipe(cssbeautify({
+						indent: '  ',
+						openbrace: 'separate-line',
+						autosemicolon: true
+				}))
+				.pipe(gulp.dest('assets/compiled/css/clean'));;
 });
 
 // Watch files and compiles on save
@@ -44,7 +57,6 @@ gulp.task('watch', function() {
 			baseDir: './'
 		}
 	})
-
 	gulp.watch('assets/js/*.js', ['scripts']);
 	gulp.watch('assets/css/**', ['sass']);
 	gulp.watch('**/*.html').on('change', browsersync.reload);
@@ -54,4 +66,4 @@ gulp.task('watch', function() {
 
 
 // gulp runs all these scripts
-gulp.task('default', ['scripts', 'sass', 'watch', 'images']);
+gulp.task('default', ['scripts', 'sass', 'watch', 'images', 'css']);
