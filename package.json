@@ -1,7 +1,7 @@
 {
-  "name": "60mins",
+  "name": "",
   "author": "",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "dependencies": {
     "gulp": "*",
     "gulp-uglify": "*",
@@ -12,7 +12,6 @@
     "gulp-clean-css": "*",
     "browser-sync": "*",
     "bootstrap-sass": "3.3.7",
-    "font-awesome": "*",
     "bourbon": "4.3.4",
     "normalize.css": "*"
   }
