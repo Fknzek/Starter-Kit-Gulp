@@ -52,7 +52,7 @@ gulp.task('watch', function () {
 		}
 	})
 
-	gulp.watch('assets/js/*.js', ['js']).on('change', browsersync.reload);
+	gulp.watch('assets/js/**', ['js']).on('change', browsersync.reload);
 	gulp.watch('assets/scss/**', ['sass']).on('change', browsersync.reload);
 	gulp.watch('**/*.html').on('change', browsersync.reload);
 });
