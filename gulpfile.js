@@ -1,10 +1,10 @@
 var gulp = require('gulp'),
 	uglify = require('gulp-uglify'),
 	sass = require('gulp-sass'),
-	cssbeautify = require('gulp-cssbeautify'),
 	plumber = require('gulp-plumber'),
 	imagemin = require('gulp-imagemin'),
 	prefix = require('gulp-autoprefixer'),
+	minCSS = require('gulp-clean-css'),
 	browsersync = require('browser-sync').create();
 
 function errorLog(error) {
@@ -12,58 +12,50 @@ function errorLog(error) {
 	this.emit('end');
 }
 
-// minifys JaveScript files all ending in .js
-gulp.task('scripts', function() {
-	gulp.src('assets/js/functions.js')
+// minifys JaveScript
+gulp.task('js', function () {
+	gulp.src('assets/js/*.js')
 		.pipe(plumber())
 		.pipe(uglify())
-		.pipe(gulp.dest('assets/compiled/js'));
+		.pipe(gulp.dest('compiled/js'));
 });
 
 // Compress images
-gulp.task('images', function() {
+gulp.task('images', function () {
 	gulp.src('assets/img/*')
 		.pipe(imagemin())
-		.pipe(gulp.dest('assets/compiled/img'))
+		.pipe(gulp.dest('compiled/img'))
 });
 
 // Compiles SASS
-gulp.task('sass', function() {
-	gulp.src('assets/css/main.sass')
+gulp.task('sass', function () {
+	gulp.src('assets/scss/main.scss')
 		.pipe(plumber())
-		.pipe(sass({outputStyle: 'compressed'}))
-		.pipe(prefix(['last 2 versions'], {cascade: true}))
-		.pipe(gulp.dest('assets/compiled/css'))
-		.pipe(browsersync.reload({stream: true}));
+		.pipe(sass.sync().on('error', sass.logError))
+		.pipe(prefix('last 2 versions'))
+		.pipe(gulp.dest('compiled/css'))
 });
 
+// minify compiled css
+gulp.task('minCSS', function () {
+	gulp.src('compiled/css/main.css')
+		.pipe(minCSS())
+		.pipe(gulp.dest('compiled/css/min/'))
+})
 
-// pretty css
-gulp.task('css', function() {
-		return gulp.src('assets/compiled/css/*.css')
-				.pipe(cssbeautify({
-						indent: '  ',
-						openbrace: 'separate-line',
-						autosemicolon: true
-				}))
-				.pipe(gulp.dest('assets/compiled/css/clean'));;
-});
-
-// Watch files and compiles on save
-gulp.task('watch', function() {
+// Watch files
+gulp.task('watch', function () {
 
 	browsersync.init({
 		server: {
 			baseDir: './'
 		}
 	})
-	gulp.watch('assets/js/*.js', ['scripts']);
-	gulp.watch('assets/css/**', ['sass']);
+
+	gulp.watch('assets/js/*.js', ['js']).on('change', browsersync.reload);
+	gulp.watch('assets/scss/**', ['sass']).on('change', browsersync.reload);
 	gulp.watch('**/*.html').on('change', browsersync.reload);
 });
 
-
-
-
 // gulp runs all these scripts
-gulp.task('default', ['scripts', 'sass', 'watch', 'images', 'css']);
+gulp.task('default', ['js', 'sass', 'images', 'minCSS', 'watch']);
